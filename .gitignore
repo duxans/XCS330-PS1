@@ -1,1 +1,5 @@
 *.yml
+/__pycache__/
+.DS_Store
+/movielens_data/
+```
