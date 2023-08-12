@@ -2,4 +2,9 @@
 /__pycache__/
 .DS_Store
 /movielens_data/
-```
+*.__pycache__
+*.pyc
+*.hdf5
+launch.json
+*events.out.*
+

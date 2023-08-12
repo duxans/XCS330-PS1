@@ -229,6 +229,11 @@ class MultiTaskNet(nn.Module):
         """
         mlp_layers = None
         ### START CODE HERE ###
+        mlp_layers = nn.ModuleList()
+        for i in range(len(layer_sizes)-1):
+            mlp_layers.append(nn.Linear(layer_sizes[i], layer_sizes[i+1]))
+            mlp_layers.append(nn.ReLU())
+        mlp_layers.append(nn.Linear(layer_sizes[-1], 1))
         ### END CODE HERE ###
         return mlp_layers
 
@@ -238,6 +243,18 @@ class MultiTaskNet(nn.Module):
         """
         predictions = score = None
         ### START CODE HERE ###
+        
+        U = self.U(user_ids)
+        Q = self.Q(item_ids)
+        A = self.A(user_ids)
+        B = self.B(item_ids)
+        predictions = torch.sum(U*Q, dim=1) + A.squeeze() + B.squeeze()
+        score = torch.cat([U,Q,U*Q], 1)
+        
+        for layer in self.mlp_layers:
+            score = layer(score)
+        score = score.squeeze()
+        
         ### END CODE HERE ###
         return predictions, score
     
@@ -247,5 +264,18 @@ class MultiTaskNet(nn.Module):
         """
         predictions = score = None
         ### START CODE HERE ###
+        U_fact = self.U_fact(user_ids)
+        Q_fact = self.Q_fact(item_ids)
+        U_reg = self.U_reg(user_ids)
+        Q_reg = self.Q_reg(item_ids)    
+                
+        A = self.A(user_ids)
+        B = self.B(item_ids)
+        predictions = torch.sum(U_fact*Q_fact, dim=1) + A.squeeze() + B.squeeze()
+        score = torch.cat([U_reg,Q_reg,U_reg*Q_reg], 1)
+
+        for layer in self.mlp_layers:
+            score = layer(score)
+        score = score.squeeze()
         ### END CODE HERE ###
         return predictions, score
